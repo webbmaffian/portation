@@ -1,5 +1,6 @@
 {
-    "name": "webbmaffian/mvc",
+	"name": "webbmaffian/mvc",
+	"description": "Webbmaffian MVC framework",
     "license": "MIT",
     "authors": [
         {
@@ -7,5 +8,19 @@
             "email": "mattias@webbmaffian.se"
         }
     ],
-    "require": {}
+	"autoload": {
+		"psr-4": {
+			"Webbmaffian\\MVC\\": "src/"
+		}
+	},
+	"config": {
+		"classmap-authoritative": true
+	},
+    "require": {
+		"php": "^7.0.0",
+		"ext-mysqli": "*",
+		"webbmaffian/orm": "^1.0.0",
+		"josegonzalez/dotenv": "*",
+		"firebase/php-jwt": "^5.0"
+	}
 }
