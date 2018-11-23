@@ -2,7 +2,7 @@
 
 namespace Webbmaffian\MVC;
 
-class User {
+class Auth {
 	static public function is_signed_in() {
 		return isset($_SESSION['user']);
 	}
