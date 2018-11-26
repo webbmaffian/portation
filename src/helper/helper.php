@@ -26,10 +26,14 @@ class Helper {
 
 
 	static public function match($pattern, $subject) {
-		$subject = (string)$subject;
-		preg_match($pattern, $subject, $matches);
+		if(is_array($subject)) {
+			$matches = preg_grep($pattern, $subject);
+		} else {
+			$subject = (string)$subject;
+			preg_match($pattern, $subject, $matches);
+		}
 
-		return isset($matches[0]) ? $matches[0]: '';
+		return !empty($matches) ? reset($matches) : '';
 	}
 
 
@@ -47,9 +51,10 @@ class Helper {
 				throw new Problem('File path does not exist: ' . $file_path);
 			}
 
-			include_once($file_path);
-			$ref = new \ReflectionClass($controller);
-			$class_name = $ref->getName();
+			$classes = get_declared_classes();
+			include($file_path);
+			$diff = array_diff(get_declared_classes(), $classes);
+			$class_name = Helper::match("/$controller/", $diff);
 			
 			if($class_name::MUST_SIGN_IN && !Auth::is_signed_in()) {
 				self::go_out();
