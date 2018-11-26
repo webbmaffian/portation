@@ -23,8 +23,8 @@ class Lang {
 			mkdir(Helper::root_dir() . '/data', 0775, true);
 		}
 
-		if(!file_exists(root_dir() . '/data/lang-cache')) {
-			mkdir(root_dir() . '/data/lang-cache', 0775, true);
+		if(!file_exists(Helper::root_dir() . '/data/lang-cache')) {
+			mkdir(Helper::root_dir() . '/data/lang-cache', 0775, true);
 		}
 
 		self::$cache_path = Helper::root_dir() . '/data/lang-cache';
