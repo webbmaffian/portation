@@ -106,10 +106,10 @@ class View {
 
 
 	static public function error($code) {
-		$path = self::path('shared/' . $code, true);
+		$path = self::path($code, true);
 		
 		if(!file_exists($path)) {
-			$path = self::path('shared/404', true);
+			$path = self::path('404', true);
 		}
 		
 		http_response_code($code);
