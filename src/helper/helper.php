@@ -42,9 +42,6 @@ class Helper {
 		
 		if(!isset(self::$controllers[$controller])) {
 			$file_path = Helper::root_dir() . '/app/controllers/' . ENDPOINT . '/' . strtolower(str_replace('_', '-', $controller)) . '.php';
-			
-			// Include endpoint controller
-			include_once(Helper::root_dir() . '/app/controllers/' . ENDPOINT . '-controller.php');
 
 			if(!file_exists($file_path)) {
 				throw new Problem('File path does not exist: ' . $file_path);
