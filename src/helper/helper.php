@@ -274,6 +274,17 @@ class Helper {
 	}
 	
 	
+	static public function get_page_title($title = '') {
+		$return = $_ENV['APP_NAME'];
+
+		if(!empty($title)) {
+			$return = trim($title) . ' - ' . $return;
+		}
+		
+		return $return;
+	}
+	
+	
 	static public function browser_download($file_path, $exit = true) {
 		if(headers_sent()) {
 			throw new Problem('Can not start download after headers are sent.');
