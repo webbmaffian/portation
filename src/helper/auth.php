@@ -156,7 +156,7 @@ class Auth {
 		}
 		
 		// Set current customer ID to the first one, if there is none set
-		if(ENDPOINT === 'admin') {
+		if(defined('ENDPOINT') && ENDPOINT === 'admin') {
 			self::set_customer_id(0);
 		} elseif(!empty($customers) && !self::get_customer_id()) {
 			self::set_customer_id($customers[0]->get_id());

@@ -34,7 +34,7 @@ class Helper {
 
 
 	static public function get_controller($controller) {
-		if(!defined(ENDPOINT)) throw new Problem("ENDPOINT constant is not defined.");
+		if(!defined('ENDPOINT')) throw new Problem("ENDPOINT constant is not defined.");
 
 		if(substr($controller, -11) !== '_Controller') {
 			$controller .= '_Controller';
