@@ -1,6 +1,6 @@
 <?php
 
-namespace Webbmaffian\MVC;
+namespace Webbmaffian\MVC\Helper;
 
 class Auth {
 	static public function is_signed_in() {
