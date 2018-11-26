@@ -33,16 +33,18 @@ class Helper {
 	}
 
 
-	static public function get_controller($controller, $endpoint) {
+	static public function get_controller($controller) {
+		if(!defined(ENDPOINT)) throw new Problem("ENDPOINT constant is not defined.");
+
 		if(substr($controller, -11) !== '_Controller') {
 			$controller .= '_Controller';
 		}
 		
 		if(!isset(self::$controllers[$controller])) {
-			$file_path = Helper::root_dir() . '/app/controllers/' . $endpoint . '/' . strtolower(str_replace('_', '-', $controller)) . '.php';
+			$file_path = Helper::root_dir() . '/app/controllers/' . ENDPOINT . '/' . strtolower(str_replace('_', '-', $controller)) . '.php';
 			
 			// Include endpoint controller
-			include_once(root_dir() . '/app/controllers/' . $endpoint . '-controller.php');
+			include_once(root_dir() . '/app/controllers/' . ENDPOINT . '-controller.php');
 
 			if(!file_exists($file_path)) {
 				throw new Problem('File path does not exist: ' . $file_path);
