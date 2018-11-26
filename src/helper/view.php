@@ -69,9 +69,9 @@ class View {
 		
 		extract($this->_data);
 
-		if($wrap) include(self::path('header'));
+		if($wrap) include(self::path('header', true));
 		include($this->_view);
-		if($wrap) include(self::path('footer'));
+		if($wrap) include(self::path('footer', true));
 	}
 
 
@@ -86,7 +86,7 @@ class View {
 
 	static public function path($filename = '', $shared = false) {
 		if($shared) {
-			$base = Helper::root_dir() . '/app/views';	
+			$base = Helper::root_dir() . '/app/views/shared';	
 		} else {
 			$base = Helper::root_dir() . '/app/views/' . ENDPOINT;
 		}
