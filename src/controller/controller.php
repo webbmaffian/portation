@@ -2,6 +2,11 @@
 
 namespace Webbmaffian\MVC\Controller;
 
+use \Webbmaffian\MVC\Helper\View;
+use \Webbmaffian\MVC\Helper\Value;
+use \Webbmaffian\MVC\Helper\Helper;
+use \Webbmaffian\MVC\Helper\Problem;
+
 abstract class Controller {
 	const MUST_SIGN_IN = true;
 	

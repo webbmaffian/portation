@@ -2,6 +2,9 @@
 
 namespace Webbmaffian\MVC\Model;
 
+use \Webbmaffian\MVC\Helper\Problem;
+use \Webbmaffian\MVC\Helper\DB;
+
 abstract class Model implements \JsonSerializable {
 	const TABLE = '';
 	const PRIMARY_KEY = 'id';
