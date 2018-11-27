@@ -2,6 +2,8 @@
 
 namespace Webbmaffian\MVC\Helper;
 
+use \Webbmaffian\ORM\DB;
+
 class Sanitize {
 
 	static public function mime_type($mime_type) {

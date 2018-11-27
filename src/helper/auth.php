@@ -2,6 +2,8 @@
 
 namespace Webbmaffian\MVC\Helper;
 
+use \Webbmaffian\ORM\DB;
+
 class Auth {
 	static public function is_signed_in() {
 		return isset($_SESSION['user']);

@@ -3,7 +3,7 @@
 namespace Webbmaffian\MVC\Model;
 
 use \Webbmaffian\MVC\Helper\Problem;
-use \Webbmaffian\MVC\Helper\DB;
+use \Webbmaffian\ORM\DB;
 
 abstract class Model_Collection {
 	const TABLE = '';
