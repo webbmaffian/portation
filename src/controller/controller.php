@@ -126,15 +126,24 @@ abstract class Controller {
 			
 		];
 
-		return $menu;
+		return $this->parse_menu($menu);
 	}
 	
 	
-	protected function parse_menu($menu) {
+	protected function parse_menu(&$menu) {
 		$current_url = trim(Helper::get_current_url(), '/');
 		
-		if(isset($menu[$current_url])) {
-			$menu[$current_url]['active'] = true;
+		foreach($menu as $key => &$item) {
+			$str = preg_quote($key, '/');
+			if(!empty($key) && preg_match("/($str)(\/|$)/", $current_url)) {
+				if(isset($item['children'])) {
+					$item['open'] = true;
+					$this->parse_menu($item['children']);
+				} else {
+					$item['active'] = true;
+					return $menu;
+				}
+			}
 		}
 		
 		return $menu;
