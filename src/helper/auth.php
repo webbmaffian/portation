@@ -58,8 +58,8 @@ class Auth {
 	static public function sign_in($user) {
 		if(self::is_signed_in()) return;
 		
-		if(!$user instanceof User) {
-			throw new Problem('Must sign in with User object.');
+		if(!$user instanceof Authable) {
+			throw new Problem('Sign in object must implement interface Authable.');
 		}
 		
 		$_SESSION['user'] = array(
