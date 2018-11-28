@@ -28,7 +28,7 @@ class Lang {
 		}
 
 		self::$cache_path = Helper::root_dir() . '/data/lang-cache';
-		self::$lang = User::get_lang() ?: self::DEFAULT_LANG;
+		self::$lang = Auth::get_lang() ?: self::DEFAULT_LANG;
 		self::$use_cache = $cache;
 		self::$translations_file = Helper::root_dir() . '/data/translations.csv';
 		self::$setted_up = true;
