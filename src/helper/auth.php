@@ -35,22 +35,7 @@ class Auth {
 
 	static public function start_session() {
 		if(session_status() == PHP_SESSION_NONE) {
-			if(isset($_ENV['SESSION_TIMEOUT'])) {
-				$args = array($_ENV['SESSION_TIMEOUT']);
-
-				if(isset($_ENV['COOKIE_DOMAIN'])) {
-					$args[] = '/';
-					$args[] = $_ENV['COOKIE_DOMAIN'];
-				}
-
-				call_user_func_array('session_set_cookie_params', $args);
-			}
-			
 			session_start();
-
-			if(isset($_ENV['SESSION_TIMEOUT'])) {
-				setcookie(session_name(), session_id(), time() + $_ENV['SESSION_TIMEOUT']);
-			}
 		}
 	}
 	
