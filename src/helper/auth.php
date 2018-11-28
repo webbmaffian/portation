@@ -55,17 +55,17 @@ class Auth {
 	}
 	
 	
-	static public function sign_in($person) {
+	static public function sign_in($user) {
 		if(self::is_signed_in()) return;
 		
-		if(!$person instanceof Person) {
-			throw new Problem('Must sign in with Person object.');
+		if(!$user instanceof User) {
+			throw new Problem('Must sign in with User object.');
 		}
 		
 		$_SESSION['user'] = array(
-			'id' => $person->get_id(),
-			'name' => $person->get_name(),
-			'lang' => $person->get_language(),
+			'id' => $user->get_id(),
+			'name' => $user->get_name(),
+			'lang' => $user->get_language(),
 			'signed_in' => time(),
 			'last_active' => time()
 		);
@@ -108,8 +108,8 @@ class Auth {
 	}
 
 	
-	static public function get_person() {
-		return Person::get_by_id(self::get_id());
+	static public function get_user() {
+		return User::get_by_id(self::get_id());
 	}
 	
 	
