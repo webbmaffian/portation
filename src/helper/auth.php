@@ -102,12 +102,12 @@ class Auth {
 		if(!self::is_signed_in()) return false;
 		
 		$db = DB::instance();
-		$capabilities = $db->get_result('SELECT tenant_id, capability FROM user_capabilities WHERE user_id = ?', self::get_id());
+		$capabilities = $db->get_result('SELECT customer_id, capability FROM user_capabilities WHERE user_id = ?', self::get_id());
 		
 		$_SESSION['user']['caps'] = array();
 		
 		foreach($capabilities as $cap) {
-			$customer_id = (int)$cap['tenant_id'];
+			$customer_id = (int)$cap['customer_id'];
 			$cap_parts = explode(':', $cap['capability']);
 			
 			if(!isset($cap_parts[1])) {
