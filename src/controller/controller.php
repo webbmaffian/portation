@@ -132,6 +132,7 @@ abstract class Controller {
 	
 	protected function parse_menu(&$menu) {
 		$current_url = trim(Helper::get_current_url(), '/');
+		$active = null;
 		
 		foreach($menu as $key => &$item) {
 			$str = preg_quote($key, '/');
@@ -140,12 +141,12 @@ abstract class Controller {
 					$item['open'] = true;
 					$this->parse_menu($item['children']);
 				} else {
-					$item['active'] = true;
-					return $menu;
+					$active = &$item['active'];
 				}
 			}
 		}
 		
+		$active = true;
 		return $menu;
 	}
 }
