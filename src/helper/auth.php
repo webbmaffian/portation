@@ -2,7 +2,8 @@
 
 namespace Webbmaffian\MVC\Helper;
 
-use \Webbmaffian\ORM\DB;
+use Webbmaffian\ORM\DB;
+use Webbmaffian\MVC\Model\Authable;
 
 class Auth {
 	static public function is_signed_in() {
