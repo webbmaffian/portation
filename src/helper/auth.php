@@ -56,8 +56,8 @@ class Auth {
 			'last_active' => time()
 		);
 		
-		self::load_capabilities();
-		self::load_available_customers();
+		static::load_capabilities();
+		static::load_available_customers();
 	}
 	
 	
