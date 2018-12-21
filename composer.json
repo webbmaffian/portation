@@ -1,16 +1,16 @@
 {
-	"name": "webbmaffian/mvc",
-	"description": "Webbmaffian MVC framework",
+	"name": "webbmaffian/portation",
+	"description": "Webbmaffian Portation",
     "license": "MIT",
     "authors": [
         {
-            "name": "Mattias Forsman",
-            "email": "mattias@webbmaffian.se"
+            "name": "Ivar Johansson",
+            "email": "ivar@webbmaffian.se"
         }
     ],
 	"autoload": {
 		"psr-4": {
-			"Webbmaffian\\MVC\\": "src/"
+			"Webbmaffian\\Portation\\": "src/"
 		}
 	},
 	"config": {
@@ -18,9 +18,8 @@
 	},
     "require": {
 		"php": "^7.0.0",
-		"ext-mysqli": "*",
 		"webbmaffian/orm": "*",
-		"josegonzalez/dotenv": "*",
-		"firebase/php-jwt": "^5.0"
+		"webbmaffian/mvc": "*",
+		"phpoffice/phpspreadsheet": "*"
 	}
 }

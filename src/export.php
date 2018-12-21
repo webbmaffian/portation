@@ -1,0 +1,158 @@
+<?php
+	namespace Webbmaffian\Portation;
+
+	use Webbmaffian\MVC\Helper\Helper;
+	use Webbmaffian\MVC\Helper\Problem;
+	use Webbmaffian\MVC\Helper\Auth;
+	use Webbmaffian\MVC\Model\Model_Collection;
+	use PhpOffice\PhpSpreadsheet;
+
+	class Import extends Portation {
+		private $collection = null;
+
+
+		public function __construct($collection)  {
+			if(!$collection instanceof Model_Collection) {
+				throw new Problem('Expected a Model Collection.');
+			}
+
+			$this->collection = $collection;
+		}
+
+
+		public function to_file($filepath, $args = array()) {
+			try {
+				if(!is_writeable(dirname($filepath))) {
+					throw new Problem('File path is not writeable.');
+				}
+
+				$this->reset_stats();
+
+				$spreadsheet = $this->get_spreadsheet($args);
+				
+				if(empty($args['filetype'])) {
+					$args['filetype'] = Helper::get_file_extension($filepath);
+				}
+				
+				$writer = PhpSpreadsheet\IOFactory::createWriter($spreadsheet, ucfirst($args['filetype']));
+				$writer->save($filepath);
+				
+				return true;
+			}
+			catch(\Exception $e) {
+				if($e instanceof Problem) {
+					throw $e;
+				}
+				
+				throw new Problem($e->getMessage(), 0, $e);
+			}
+		}
+
+
+		public function to_browser($filename, $args = array()) {
+			try {
+				if(headers_sent()) {
+					throw new Problem('Can\'t output export after headers are sent.');
+				}
+
+				$this->reset_stats();
+
+				$spreadsheet = $this->get_spreadsheet($args);
+
+				if(empty($args['filetype'])) {
+					$args['filetype'] = Helper::get_file_extension($filepath);
+				}
+				
+				// Redirect output to a client’s web browser (Xlsx)
+				header('Content-Type: ' . mime_content_type($filename));
+				header('Content-Disposition: attachment;filename="' . $filename . '"');
+				header('Cache-Control: max-age=0');
+
+				$writer = PhpSpreadsheet\IOFactory::createWriter($spreadsheet, ucfirst($args['filetype']));
+				$writer->save('php://output');
+				
+				return true;
+			}
+			catch(\Exception $e) {
+				if($e instanceof Problem) {
+					throw $e;
+				}
+				
+				throw new Problem($e->getMessage(), 0, $e);
+			}
+		}
+
+
+		private function get_spreadsheet($args = array()) {
+			$args = Helper::default_args($args, array(
+				'author' => null,
+				'title' => str_replace('_', ' ', Helper::get_class_name($collection)),
+				'filetype' => 'xlsx',
+				'data_types' => array()
+			));
+			
+			if(is_null($args['author']) && Auth::is_signed_in()) {
+				$args['author'] = Auth::get_name();
+			}
+			
+			if(!empty($args['data_types'])) {
+				foreach($args['data_types'] as $column => $type) {
+					$new_type = @constant('PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_' . strtoupper($type));
+					
+					if(is_null($new_type)) {
+						throw new Problem('Invalid data type: ' . $type);
+					}
+					
+					$args['data_types'][$column] = $new_type;
+				}
+			}
+			
+			$spreadsheet = new PhpSpreadsheet\Spreadsheet();
+			
+			$spreadsheet->getProperties()
+			->setCreator($args['author'])
+			->setLastModifiedBy($args['author'])
+			->setTitle($args['title']);
+			
+			$sheet = $spreadsheet->getActiveSheet();
+			
+			$columns = null;
+			$row = 0;
+			
+			foreach($collection->get() as $model) {
+				$model_data = $model->get_data();
+				$row++;
+				
+				if(is_null($columns)) {
+					$columns = array();
+					
+					foreach(array_keys($model_data) as $x => $column) {
+						$col = sizeof($columns) + 1;
+						
+						$columns[] = $column;
+						
+						$sheet->setCellValueByColumnAndRow($col, $row, $column);
+					}
+					
+					$row++;
+				}
+				
+				foreach($columns as $x => $column) {
+					if(!isset($model_data[$column])) continue;
+					
+					$col = $x + 1;
+					
+					if(isset($args['data_types'][$column])) {
+						$sheet->setCellValueExplicitByColumnAndRow($col, $row, $model_data[$column], $args['data_types'][$column]);
+					}
+					else {
+						$sheet->setCellValueByColumnAndRow($col, $row, $model_data[$column]);
+					}
+				}
+
+				$this->stats['total']++;
+			}
+			
+			return $spreadsheet;
+		}
+	}
