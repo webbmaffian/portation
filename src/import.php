@@ -124,6 +124,10 @@
 							$model = $class_name::create($model_data);
 							$this->stats['created']++;
 						}
+
+						foreach($this->callbacks as $callback) {
+							$callback($model);
+						}
 					}
 					catch(Problem $e) {
 						$this->stats['failed']++;

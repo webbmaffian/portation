@@ -7,10 +7,13 @@
 	abstract class Portation {
 		private $errors = array();
 		protected $stats = array();
+		protected $callbacks = array();
 
 
-		public function get_errors() {
-			return $this->errors;
+		protected function register_callback($callback) {
+			if(!is_callable($callback)) return;
+
+			$this->callbacks[] = $callback;
 		}
 		
 		
@@ -31,6 +34,11 @@
 				'updated' => 0,
 				'failed' => 0
 			);
+		}
+
+
+		public function get_errors() {
+			return $this->errors;
 		}
 
 
