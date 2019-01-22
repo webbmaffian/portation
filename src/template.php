@@ -1,6 +1,11 @@
 <?php
 	namespace Webbmaffian\Portation;
 
+	use Webbmaffian\MVC\Helper\Helper;
+	use Webbmaffian\MVC\Helper\Problem;
+	use Webbmaffian\MVC\Helper\Auth;
+	use PhpOffice\PhpSpreadsheet;
+
 	class Template extends Export {
 		public function __construct($collection)  {
 			if(!is_array($collection)) {
