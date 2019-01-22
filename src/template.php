@@ -38,10 +38,12 @@
 			$sheet = $spreadsheet->getActiveSheet();
 			
 			$columns = null;
-			$row = 0;
+			$col = 1;
 			
 			foreach($this->collection as $i => $column_name) {
-				$sheet->setCellValueByColumnAndRow($i + 1, 1, $column_name);
+				if($column_name === 'id') continue;
+				$sheet->setCellValueByColumnAndRow($col, 1, $column_name);
+				$col++;
 			}
 			
 			return $spreadsheet;
