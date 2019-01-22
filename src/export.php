@@ -7,7 +7,7 @@
 	use Webbmaffian\MVC\Model\Model_Collection;
 	use PhpOffice\PhpSpreadsheet;
 
-	class Import extends Portation {
+	class Export extends Portation {
 		private $collection = null;
 
 
