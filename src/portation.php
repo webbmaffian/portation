@@ -10,7 +10,7 @@
 		protected $callbacks = array();
 
 
-		protected function register_callback($callback) {
+		public function register_callback($callback) {
 			if(!is_callable($callback)) return;
 
 			$this->callbacks[] = $callback;
