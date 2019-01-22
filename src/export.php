@@ -60,7 +60,7 @@
 				$spreadsheet = $this->get_spreadsheet($args);
 
 				if(empty($args['filetype'])) {
-					$args['filetype'] = Helper::get_file_extension($filepath);
+					$args['filetype'] = Helper::get_file_extension($filename);
 				}
 				
 				// Redirect output to a client’s web browser (Xlsx)
