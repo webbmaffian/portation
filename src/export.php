@@ -9,6 +9,7 @@
 
 	class Export extends Portation {
 		private $collection = null;
+		private $callbacks = array();
 
 
 		public function __construct($collection)  {
@@ -17,6 +18,13 @@
 			}
 
 			$this->collection = $collection;
+		}
+
+
+		public function register_callback($callback) {
+			if(!is_callable($callback)) return;
+
+			$this->callbacks[] = $callback;
 		}
 
 
@@ -120,8 +128,14 @@
 			$row = 0;
 			
 			foreach($this->collection->get() as $model) {
-				$model_data = $model->get_data();
 				$row++;
+				$model_type = get_class($model);
+
+				foreach($this->callbacks as $callback) {
+					$callback($model);
+				}
+
+				$model_data = $model->get_data();
 				
 				if(is_null($columns)) {
 					$columns = array();
