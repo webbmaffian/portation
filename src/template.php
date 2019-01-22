@@ -11,7 +11,7 @@
 		}
 
 
-		private function get_spreadsheet($args = array()) {
+		protected function get_spreadsheet($args = array()) {
 			$args = Helper::default_args($args, array(
 				'author' => null,
 				'title' => 'ImportTemplate',

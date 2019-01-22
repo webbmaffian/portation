@@ -83,7 +83,7 @@
 		}
 
 
-		private function get_spreadsheet($args = array()) {
+		protected function get_spreadsheet($args = array()) {
 			$args = Helper::default_args($args, array(
 				'author' => null,
 				'title' => str_replace('_', ' ', Helper::get_class_name($this->collection)),
