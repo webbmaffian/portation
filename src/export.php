@@ -64,7 +64,7 @@
 				}
 				
 				// Redirect output to a client’s web browser (Xlsx)
-				header('Content-Type: ' . mime_content_type($filename));
+				header('Content-Type: ' . $this->get_mime_type($args['filetype']));
 				header('Content-Disposition: attachment;filename="' . $filename . '"');
 				header('Cache-Control: max-age=0');
 
@@ -86,7 +86,7 @@
 		private function get_spreadsheet($args = array()) {
 			$args = Helper::default_args($args, array(
 				'author' => null,
-				'title' => str_replace('_', ' ', Helper::get_class_name($collection)),
+				'title' => str_replace('_', ' ', Helper::get_class_name($this->collection)),
 				'filetype' => 'xlsx',
 				'data_types' => array()
 			));
@@ -119,7 +119,7 @@
 			$columns = null;
 			$row = 0;
 			
-			foreach($collection->get() as $model) {
+			foreach($this->collection->get() as $model) {
 				$model_data = $model->get_data();
 				$row++;
 				

@@ -1,6 +1,9 @@
 <?php
 	namespace Webbmaffian\Portation;
 
+ 	use Webbmaffian\MVC\Helper\Problem;
+
+
 	abstract class Portation {
 		private $errors = array();
 		protected $stats = array();
@@ -21,7 +24,7 @@
 		}
 
 
-		private function reset_stats() {
+		protected function reset_stats() {
 			$this->stats = array(
 				'total' => 0,
 				'created' => 0,
@@ -48,5 +51,22 @@
 
 		public function get_failed() {
 			return $this->stats['failed'];
+		}
+
+
+		public function get_mime_type($extension) {
+			$extension = strtolower($extension);
+			$types = array(
+				'xls' => 'application/vnd.ms-excel',
+				'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+				'csv' => 'text/csv',
+				'html' => 'text/html',
+				'pdf' => 'application/pdf'
+			);
+
+			if(!isset($types[$extension])) throw new Problem('Unknown file type.');
+
+			return $types[$extension];
 		}
 	}
