@@ -71,7 +71,7 @@
 				$writer = PhpSpreadsheet\IOFactory::createWriter($spreadsheet, ucfirst($args['filetype']));
 				$writer->save('php://output');
 				
-				return true;
+				exit;
 			}
 			catch(\Exception $e) {
 				if($e instanceof Problem) {
