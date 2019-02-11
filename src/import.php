@@ -95,6 +95,12 @@
 						if(empty($model_data)) {
 							throw new Problem('Empty or invalid data.');
 						}
+
+						if(isset($args['overrides']) && is_array($args['overrides'])) {
+							foreach($args['overrides'] as $key => $value) {
+								$model_data[$key] = $value;
+							}
+						}
 						
 						// Primary key is set
 						if(!empty($model_data[$primary_key])) {
