@@ -70,14 +70,14 @@
 
 						$model_fields = $this->class_name::get_column_names();
 						$meta_fields = array_diff($columns, $model_fields);
-						$columns = array_filter($columns, function($e) use ($meta_fields) { return !in_array($e, $meta_fields); });
+						$model_columns = array_filter($columns, function($e) use ($meta_fields) { return !in_array($e, $meta_fields); });
 						
 						$model_data = array();
 						$meta_data = array();
 						
 						foreach($cell_iterator as $col => $cell) {
-							if(isset($columns[$col])) {
-								$model_data[$columns[$col]] = trim($cell->getValue());
+							if(isset($model_columns[$col])) {
+								$model_data[$model_columns[$col]] = trim($cell->getValue());
 							} elseif(isset($meta_fields[$col])) {
 								$meta_data[$meta_fields[$col]] = trim($cell->getValue());
 							}
