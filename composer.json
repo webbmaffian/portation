@@ -1,13 +1,17 @@
 {
 	"name": "webbmaffian/portation",
 	"description": "Webbmaffian Portation",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Ivar Johansson",
-            "email": "ivar@webbmaffian.se"
-        }
-    ],
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Ivar Johansson",
+			"email": "ivar@webbmaffian.se"
+		},
+		{
+			"name": "Mattias Forsman",
+			"email": "mattias@webbmaffian.se"
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"Webbmaffian\\Portation\\": "src/"
@@ -16,7 +20,7 @@
 	"config": {
 		"classmap-authoritative": true
 	},
-    "require": {
+	"require": {
 		"php": "^7.0.0",
 		"webbmaffian/orm": "*",
 		"webbmaffian/mvc": "*",
