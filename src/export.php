@@ -71,7 +71,7 @@
 				$writer = PhpSpreadsheet\IOFactory::createWriter($spreadsheet, ucfirst($args['filetype']));
 				$writer->save('php://output');
 				
-				return true;
+				exit;
 			}
 			catch(\Exception $e) {
 				if($e instanceof Problem) {
@@ -88,7 +88,9 @@
 				'author' => null,
 				'title' => str_replace('_', ' ', Helper::get_class_name($this->collection)),
 				'filetype' => 'xlsx',
-				'data_types' => array()
+				'data_types' => array(),
+				'ignore_columns' => array(),
+				'allow_empty' => false
 			));
 			
 			if(is_null($args['author']) && Auth::is_signed_in()) {
@@ -118,8 +120,14 @@
 			
 			$columns = null;
 			$row = 0;
+
+			$collection_rows = $this->collection->get();
+
+			if(empty($collection_rows)) {
+				throw new Problem('Empty data set.');
+			}
 			
-			foreach($this->collection->get() as $model) {
+			foreach($collection_rows as $model) {
 				$row++;
 				$model_type = get_class($model);
 
@@ -133,6 +141,8 @@
 					$columns = array();
 					
 					foreach(array_keys($model_data) as $x => $column) {
+						if(in_array($column, $args['ignore_columns'])) continue;
+						
 						$col = sizeof($columns) + 1;
 						
 						$columns[] = $column;
