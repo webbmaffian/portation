@@ -3,12 +3,18 @@
 
 	use Webbmaffian\ORM\DB;
 	use Webbmaffian\MVC\Helper\Helper;
+	use Webbmaffian\MVC\Helper\Sanitize;
 	use Webbmaffian\MVC\Helper\Problem;
 	use PhpOffice\PhpSpreadsheet;
 
 	class Import extends Portation {
-		private $filename = null;
-		private $class_name = null;
+		protected $filename = null;
+		protected $class_name = null;
+		protected $file_type = null;
+		protected $identifier = null;
+		protected $is_auto_increment = false;
+		protected $model_data_parser = null;
+		protected $meta_data_parser = null;
 
 
 		public function __construct($filename, $class_name) {
@@ -35,16 +41,24 @@
 				$this->reset_errors();
 				$this->reset_stats();
 				
-				if(!isset($args['file_type'])) {
-					$args['file_type'] = Helper::get_file_extension($this->filename);
+				$file_type = (isset($args['file_type']) ? $args['file_type'] : $this->file_type);
+
+				if(empty($file_type)) {
+					$file_type = Helper::get_file_extension($this->filename);
 				}
-				
-				$reader = PhpSpreadsheet\IOFactory::createReader(ucfirst($args['file_type']));
+
+				$reader = PhpSpreadsheet\IOFactory::createReader(ucfirst($file_type));
 				$spreadsheet = $reader->load($this->filename);
 				$sheet = $spreadsheet->getActiveSheet();
 				$columns = null;
-				$primary_key = $this->class_name::PRIMARY_KEY;
-				$is_auto_increment = $this->class_name::IS_AUTO_INCREMENT;
+
+				// If no identifier is set, we'll use the model's primary key
+				$identifier = ($this->identifier ?: $this->class_name::PRIMARY_KEY);
+				$is_auto_increment = ($this->identifier ? $this->is_auto_increment : $this->class_name::IS_AUTO_INCREMENT);
+
+				if(!is_callable(array($this->class_name, 'get_by_' . $identifier))) {
+					throw new Problem(sprintf('Missing "get_by_%s" method on %s.', $identifier, $this->class_name));
+				}
 				
 				$db->start_transaction();
 				
@@ -82,6 +96,22 @@
 								$meta_data[$meta_fields[$col]] = trim($cell->getValue());
 							}
 						}
+
+						if(!is_null($this->model_data_parser)) {
+							$model_data = call_user_func($this->model_data_parser, $model_data, $row, $row_num);
+
+							if(!is_array($model_data)) {
+								throw new Problem('Model data parser does not return an array.');
+							}
+						}
+
+						if(!is_null($this->meta_data_parser)) {
+							$meta_data = call_user_func($this->meta_data_parser, $meta_data, $row, $row_num);
+
+							if(!is_array($meta_data)) {
+								throw new Problem('Meta data parser does not return an array.');
+							}
+						}
 						
 						// Skip row if all columns are empty
 						if(count(array_filter($model_data)) === 0) {
@@ -102,23 +132,23 @@
 							}
 						}
 						
-						// Primary key is set
-						if(!empty($model_data[$primary_key])) {
+						// Identifier is set
+						if(!empty($model_data[$identifier])) {
 							try {
 								
-								// Try to fetch the model by primary key (if it doesn't exist it might be created in the catch block)
-								$model = $this->class_name::get_by_id($model_data[$primary_key]);
+								// Try to fetch the model by identifier (if it doesn't exist it might be created in the catch block)
+								$model = $this->class_name::{'get_by_' . $identifier}($model_data[$identifier]);
 								
-								// We won't update the primary key, as it is the unique identifier - unset it
-								unset($model_data[$primary_key]);
+								// We won't update the identifier - unset it
+								unset($model_data[$identifier]);
 								
 								// Update model
 								$model->update($model_data);
 								$this->stats['updated']++;
 							}
-							catch(Problem $e) {
+							catch(\Exception $e) {
 								
-								// If it is an auto-increment model, abort and throw the problem further
+								// We will obviously not create the model if an identifier has been set when it should be incremented automatically
 								if($is_auto_increment) throw $e;
 								
 								// If we arrived here, the model doesn't exist and should be created further down
@@ -126,9 +156,14 @@
 							}
 						}
 						
-						// Primary key is not set
+						// Identifier is not set (or empty)
 						else {
 							$create = true;
+
+							// We can only accept auto-increment identifiers here, as we can't have an empty identifier
+							if(!$is_auto_increment) {
+								throw new Problem(sprintf('Empty identifier "%s".', $identifier));
+							}
 						}
 						
 						// Create new model
@@ -141,7 +176,7 @@
 							$callback($model, $meta_data);
 						}
 					}
-					catch(Problem $e) {
+					catch(\Exception $e) {
 						$this->stats['failed']++;
 						$this->add_error('Row ' . $row_num . ': ' . $e->getMessage());
 					}
@@ -160,5 +195,42 @@
 			}
 			
 			return true;
+		}
+
+
+		public function set_identifier($identifier, $is_auto_increment = false) {
+			$this->identifier = Sanitize::key($identifier);
+			$this->is_auto_increment = (bool)$is_auto_increment;
+
+			return $this;
+		}
+
+
+		public function set_file_type($file_type) {
+			$this->file_type = Sanitize::key($file_type);
+
+			return $this;
+		}
+
+
+		public function set_model_data_parser($callback) {
+			if(!is_callable($callback)) {
+				throw new Problem('Data parser is not callable.');
+			}
+
+			$this->model_data_parser = $callback;
+
+			return $this;
+		}
+
+
+		public function set_meta_data_parser($callback) {
+			if(!is_callable($callback)) {
+				throw new Problem('Data parser is not callable.');
+			}
+
+			$this->model_data_parser = $callback;
+
+			return $this;
 		}
 	}
