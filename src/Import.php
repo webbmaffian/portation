@@ -97,6 +97,7 @@
 							}
 						}
 
+						// DEPRECATED
 						if(!is_null($this->model_data_parser)) {
 							$model_data = call_user_func($this->model_data_parser, $model_data, $row, $row_num);
 
@@ -105,6 +106,7 @@
 							}
 						}
 
+						// DEPRECATED
 						if(!is_null($this->meta_data_parser)) {
 							$meta_data = call_user_func($this->meta_data_parser, $meta_data, $row, $row_num);
 
@@ -112,9 +114,12 @@
 								throw new Problem('Meta data parser does not return an array.');
 							}
 						}
+
+						$model_data = $this->filter('import_model_data', $model_data, $meta_data, $row, $row_num);
+						$meta_data = $this->filter('import_meta_data', $meta_data, $model_data, $row, $row_num);
 						
 						// Skip row if all columns are empty
-						if(count(array_filter($model_data)) === 0) {
+						if($this->filter('import_skip_row', count(array_filter($model_data)) === 0, $model_data, $meta_data, $row, $row_num)) {
 							continue;
 						}
 						
@@ -172,9 +177,12 @@
 							$this->stats['created']++;
 						}
 
+						// DEPRECATED
 						foreach($this->callbacks as $callback) {
 							$callback($model, $meta_data);
 						}
+
+						$this->action('after_import', $model, $model_data, $meta_data, $row, $row_num);
 					}
 					catch(\Exception $e) {
 						$this->stats['failed']++;
@@ -213,7 +221,10 @@
 		}
 
 
+		// DEPRECATED
 		public function set_model_data_parser($callback) {
+			Helper::deprecated();
+
 			if(!is_callable($callback)) {
 				throw new Problem('Data parser is not callable.');
 			}
@@ -224,7 +235,10 @@
 		}
 
 
+		// DEPRECATED
 		public function set_meta_data_parser($callback) {
+			Helper::deprecated();
+
 			if(!is_callable($callback)) {
 				throw new Problem('Data parser is not callable.');
 			}

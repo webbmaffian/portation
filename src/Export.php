@@ -131,11 +131,14 @@
 				$row++;
 				$model_type = get_class($model);
 
+				// DEPRECATED
 				foreach($this->callbacks as $callback) {
 					$callback($model);
 				}
 
-				$model_data = $model->get_data();
+				$this->action('before_export', $model);
+
+				$model_data = $this->filter('export_model_data', $model->get_data(), $model, $row);
 				
 				if(is_null($columns)) {
 					$columns = array();

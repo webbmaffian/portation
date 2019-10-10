@@ -1,19 +1,54 @@
 <?php
 	namespace Webbmaffian\Portation;
-
- 	use Webbmaffian\MVC\Helper\Problem;
+	use Webbmaffian\MVC\Helper\Helper;
+	use Webbmaffian\MVC\Helper\Problem;
 
 
 	abstract class Portation {
 		private $errors = array();
 		protected $stats = array();
 		protected $callbacks = array();
+		protected $hooks = array();
 
 
+		// DEPRECATED
 		public function register_callback($callback) {
+			Helper::deprecated();
+
 			if(!is_callable($callback)) return;
 
 			$this->callbacks[] = $callback;
+		}
+
+
+		public function set_hook($name, $callback) {
+			if(!is_callable($callback)) {
+				throw new Problem(sprintf('Hook "%s" is not callable.', $name));
+			}
+
+			$this->hooks[$name] = $callback;
+		}
+
+
+		protected function action($name, ...$args) {
+			if(isset($this->hooks[$name])) {
+				call_user_func_array($this->hooks[$name], $args);
+			}
+		}
+
+
+		protected function filter($name, ...$args) {
+			if(isset($this->hooks[$name])) {
+				$return = call_user_func_array($this->hooks[$name], $args);
+
+				if(!is_null($args[0]) && gettype($return) !== gettype($args[0])) {
+					throw new Problem(sprintf('Return of hook "%s" must be of type "%s".', $name, gettype($args[0])));
+				}
+
+				return $return;
+			}
+
+			return $args[0];
 		}
 		
 		
