@@ -72,7 +72,7 @@
 							$columns = array();
 							
 							foreach($cell_iterator as $col => $cell) {
-								$column_name = $cell->getValue();
+								$column_name = trim($cell->getValue());
 								
 								if(empty($column_name)) continue;
 								
