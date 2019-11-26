@@ -41,15 +41,7 @@
 				$this->reset_errors();
 				$this->reset_stats();
 				
-				$file_type = (isset($args['file_type']) ? $args['file_type'] : $this->file_type);
-
-				if(empty($file_type)) {
-					$file_type = Helper::get_file_extension($this->filename);
-				}
-
-				$reader = PhpSpreadsheet\IOFactory::createReader(ucfirst($file_type));
-				$spreadsheet = $reader->load($this->filename);
-				$sheet = $spreadsheet->getActiveSheet();
+				$sheet = $this->get_sheet($args);
 				$columns = null;
 
 				// If no identifier is set, we'll use the model's primary key
@@ -69,15 +61,7 @@
 						
 						// First row should always contain column names
 						if(is_null($columns)) {
-							$columns = array();
-							
-							foreach($cell_iterator as $col => $cell) {
-								$column_name = trim($cell->getValue());
-								
-								if(empty($column_name)) continue;
-								
-								$columns[$col] = $column_name;
-							}
+							$columns = $this->get_columns_by_iterator($cell_iterator);
 							
 							continue;
 						}
@@ -219,6 +203,49 @@
 
 			return $this;
 		}
+
+
+		public function get_columns($args = array()) {
+			$sheet = $this->get_sheet($args);
+
+			foreach($sheet->getRowIterator() as $row_num => $row) {
+				$cell_iterator = $row->getCellIterator();
+				$cell_iterator->setIterateOnlyExistingCells(false);
+				
+				return get_columns_by_iterator($cell_iterator);
+			}
+		}
+
+
+		protected function get_columns_by_iterator($iterator) {
+			$columns = array();
+			
+			foreach($cell_iterator as $col => $cell) {
+				$column_name = trim($cell->getValue());
+				
+				if(empty($column_name)) continue;
+				
+				$columns[$col] = $column_name;
+			}
+			
+			return $columns;
+		}
+
+
+		protected function get_sheet($args = array()) {
+			$file_type = (isset($args['file_type']) ? $args['file_type'] : $this->file_type);
+
+			if(empty($file_type)) {
+				$file_type = Helper::get_file_extension($this->filename);
+			}
+
+			$reader = PhpSpreadsheet\IOFactory::createReader(ucfirst($file_type));
+			$spreadsheet = $reader->load($this->filename);
+			return $spreadsheet->getActiveSheet();
+		}
+
+
+		// -- DEPRECATED METHODS --------------------------------------------------------------------------------------------
 
 
 		// DEPRECATED
