@@ -212,7 +212,7 @@
 				$cell_iterator = $row->getCellIterator();
 				$cell_iterator->setIterateOnlyExistingCells(false);
 				
-				return get_columns_by_iterator($cell_iterator);
+				return $this->get_columns_by_iterator($cell_iterator);
 			}
 		}
 
@@ -220,7 +220,7 @@
 		protected function get_columns_by_iterator($iterator) {
 			$columns = array();
 			
-			foreach($cell_iterator as $col => $cell) {
+			foreach($iterator as $col => $cell) {
 				$column_name = trim($cell->getValue());
 				
 				if(empty($column_name)) continue;
