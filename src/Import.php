@@ -123,7 +123,7 @@
 						
 						// Create model if it doesn't exist
 						else {
-							$model = $this->class_name::create($model_data);
+							$model = $this->create_model($model_data, $identifier, $is_auto_increment);
 							$this->stats['created']++;
 						}
 
@@ -249,6 +249,19 @@
 
 			// We won't update the identifier - unset it
 			unset($data[$identifier]);
+
+			return $model;
+		}
+
+
+		protected function create_model($data, $identifier, $is_auto_increment) {
+
+			// Let any other code create the model
+			$model = $this->filter('create_model', null, $data, $identifier, $is_auto_increment);
+
+			if(is_null($model)) {
+				$model = $this->class_name::create($data);
+			}
 
 			return $model;
 		}
