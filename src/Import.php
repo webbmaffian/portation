@@ -109,8 +109,6 @@
 						
 						$this->stats['total']++;
 						
-						$create = false;
-						
 						if(empty($model_data)) {
 							throw new Problem('Empty or invalid data.');
 						}
@@ -120,43 +118,15 @@
 								$model_data[$key] = $value;
 							}
 						}
-						
-						// Identifier is set
-						if(!empty($model_data[$identifier])) {
-							try {
-								
-								// Try to fetch the model by identifier (if it doesn't exist it might be created in the catch block)
-								$model = $this->class_name::{'get_by_' . $identifier}($model_data[$identifier]);
-								
-								// We won't update the identifier - unset it
-								unset($model_data[$identifier]);
-								
-								// Update model
-								$model->update($model_data);
-								$this->stats['updated']++;
-							}
-							catch(\Exception $e) {
-								
-								// We will obviously not create the model if an identifier has been set when it should be incremented automatically
-								if($is_auto_increment) throw $e;
-								
-								// If we arrived here, the model doesn't exist and should be created further down
-								$create = true;
-							}
-						}
-						
-						// Identifier is not set (or empty)
-						else {
-							$create = true;
 
-							// We can only accept auto-increment identifiers here, as we can't have an empty identifier
-							if(!$is_auto_increment) {
-								throw new Problem(sprintf('Empty identifier "%s".', $identifier));
-							}
+						// Update model if it exists
+						if($model = $this->get_model($model_data, $identifier, $is_auto_increment)) {
+							$model->update($model_data);
+							$this->stats['updated']++;
 						}
 						
-						// Create new model
-						if($create) {
+						// Create model if it doesn't exist
+						else {
 							$model = $this->class_name::create($model_data);
 							$this->stats['created']++;
 						}
@@ -242,6 +212,44 @@
 			$reader = PhpSpreadsheet\IOFactory::createReader(ucfirst($file_type));
 			$spreadsheet = $reader->load($this->filename);
 			return $spreadsheet->getActiveSheet();
+		}
+
+
+		protected function get_model(&$data, $identifier, $is_auto_increment) {
+
+			// Let any other code find the model
+			$model = $this->filter('get_model', null, $data, $identifier, $is_auto_increment);
+
+			if(!is_null($model)) {
+				return $model;
+			}
+
+			// <- If we came here, no other code tried to find the code for us.
+
+			if(empty($data[$identifier])) {
+
+				// We can only accept auto-increment identifiers here, as we can't have an empty identifier
+				if(!$is_auto_increment) {
+					throw new Problem(sprintf('Empty identifier "%s".', $identifier));
+				}
+				
+				return false;
+			}
+			
+			// Try to fetch the model by identifier
+			try {
+				$model = $this->class_name::{'get_by_' . $identifier}($data[$identifier]);
+			}
+
+			// If we catch an exception, it means that it doesn't exist
+			catch(\Exception $e) {
+				return false;
+			}
+
+			// We won't update the identifier - unset it
+			unset($data[$identifier]);
+
+			return $model;
 		}
 
 
