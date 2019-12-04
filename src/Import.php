@@ -47,10 +47,6 @@
 				// If no identifier is set, we'll use the model's primary key
 				$identifier = ($this->identifier ?: $this->class_name::PRIMARY_KEY);
 				$is_auto_increment = ($this->identifier ? $this->is_auto_increment : $this->class_name::IS_AUTO_INCREMENT);
-
-				if(!is_callable(array($this->class_name, 'get_by_' . $identifier))) {
-					throw new Problem(sprintf('Missing "get_by_%s" method on %s.', $identifier, $this->class_name));
-				}
 				
 				$db->start_transaction();
 				
@@ -234,6 +230,11 @@
 				}
 				
 				return false;
+			}
+
+			// Ensure we have a method for getting a model by identifier
+			if(!is_callable(array($this->class_name, 'get_by_' . $identifier))) {
+				throw new Problem(sprintf('Missing "get_by_%s" method on %s.', $identifier, $this->class_name));
 			}
 			
 			// Try to fetch the model by identifier
