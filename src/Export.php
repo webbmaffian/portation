@@ -118,7 +118,7 @@
 			
 			$sheet = $spreadsheet->getActiveSheet();
 			
-			$columns = null;
+			$columns = $this->filter('export_columns', null, $this->collection);
 			$row = 0;
 
 			$collection_rows = $this->collection->get();
