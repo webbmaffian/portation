@@ -36,24 +36,30 @@
 
 
 		public function run($args = array()) {
-			try {
-				$db = DB::instance();
-				$this->reset_errors();
-				$this->reset_stats();
-				
-				$sheet = $this->get_sheet($args);
-				$columns = null;
+			$db = DB::instance();
+			$this->reset_errors();
+			$this->reset_stats();
+			
+			$sheet = $this->get_sheet($args);
+			$columns = null;
+			$use_savepoints = method_exists($db, 'add_savepoint');
 
-				// If no identifier is set, we'll use the model's primary key
-				$identifier = ($this->identifier ?: $this->class_name::PRIMARY_KEY);
-				$is_auto_increment = ($this->identifier ? $this->is_auto_increment : $this->class_name::IS_AUTO_INCREMENT);
-				
-				$this->action('before_import', $sheet);
-				
+			// If no identifier is set, we'll use the model's primary key
+			$identifier = ($this->identifier ?: $this->class_name::PRIMARY_KEY);
+			$is_auto_increment = ($this->identifier ? $this->is_auto_increment : $this->class_name::IS_AUTO_INCREMENT);
+			$model_fields = array_flip($this->filter('import_model_fields', $this->class_name::get_column_names(), $this->class_name));
+
+			$this->action('before_import', $sheet);
+
+			try {
 				$db->start_transaction();
 				
 				foreach($sheet->getRowIterator() as $row_num => $row) {
 					try {
+						if($use_savepoints) {
+							$db->add_savepoint();
+						}
+
 						$cell_iterator = $row->getCellIterator();
 						$cell_iterator->setIterateOnlyExistingCells(false);
 						
@@ -64,18 +70,17 @@
 							continue;
 						}
 
-						$model_fields = $this->class_name::get_column_names();
-						$meta_fields = array_diff($columns, $model_fields);
-						$model_columns = array_filter($columns, function($e) use ($meta_fields) { return !in_array($e, $meta_fields); });
-						
 						$model_data = array();
 						$meta_data = array();
 						
 						foreach($cell_iterator as $col => $cell) {
-							if(isset($model_columns[$col])) {
-								$model_data[$model_columns[$col]] = trim($cell->getValue());
-							} elseif(isset($meta_fields[$col])) {
-								$meta_data[$meta_fields[$col]] = trim($cell->getValue());
+							if(!isset($columns[$col])) continue;
+
+							if(isset($model_fields[$columns[$col]])) {
+								$model_data[$columns[$col]] = trim($cell->getValue());
+							}
+							else {
+								$meta_data[$columns[$col]] = trim($cell->getValue());
 							}
 						}
 
@@ -121,12 +126,14 @@
 						if($model = $this->get_model($model_data, $identifier, $is_auto_increment)) {
 							$model->update($model_data);
 							$this->stats['updated']++;
+							$created = false;
 						}
 						
 						// Create model if it doesn't exist
 						else {
 							$model = $this->create_model($model_data, $identifier, $is_auto_increment);
 							$this->stats['created']++;
+							$created = true;
 						}
 
 						// DEPRECATED
@@ -134,9 +141,17 @@
 							$callback($model, $meta_data);
 						}
 
-						$this->action('after_import', $model, $model_data, $meta_data, $row, $row_num);
+						$this->action('after_import', $model, $model_data, $meta_data, $row, $row_num, $created);
+
+						if($use_savepoints) {
+							$db->release_savepoint();
+						}
 					}
 					catch(\Exception $e) {
+						if($use_savepoints) {
+							$db->rollback_savepoint();
+						}
+
 						$this->stats['failed']++;
 						$this->add_error('Row ' . $row_num . ': ' . $e->getMessage());
 					}
@@ -246,7 +261,12 @@
 
 			// If we catch an exception, it means that it doesn't exist
 			catch(\Exception $e) {
-				return false;
+
+				// If not auto-increment, it's okay if it doesn't exist
+				if(!$is_auto_increment) return false;
+
+				// Otherwise, the user is doing something wrong
+				throw $e;
 			}
 
 			// We won't update the identifier - unset it
