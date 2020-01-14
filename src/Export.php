@@ -141,16 +141,16 @@
 				$model_data = $this->filter('export_model_data', $model->get_data(), $model, $row);
 				
 				if(is_null($columns)) {
-					$columns = array();
-					
-					foreach(array_keys($model_data) as $x => $column) {
-						if(in_array($column, $args['ignore_columns'])) continue;
-						
-						$col = sizeof($columns) + 1;
-						
-						$columns[] = $column;
-						
-						$sheet->setCellValueByColumnAndRow($col, $row, $column);
+					$columns = array_keys($model_data);
+				}
+
+				if($row === 1) {
+					if(!empty($args['ignore_columns'])) {
+						$columns = array_diff($columns, $args['ignore_columns']);
+					}
+
+					foreach($columns as $x => $column) {
+						$sheet->setCellValueByColumnAndRow($x + 1, $row, $column);
 					}
 					
 					$row++;
