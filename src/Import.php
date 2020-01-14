@@ -48,6 +48,8 @@
 				$identifier = ($this->identifier ?: $this->class_name::PRIMARY_KEY);
 				$is_auto_increment = ($this->identifier ? $this->is_auto_increment : $this->class_name::IS_AUTO_INCREMENT);
 				
+				$this->action('before_import', $sheet);
+				
 				$db->start_transaction();
 				
 				foreach($sheet->getRowIterator() as $row_num => $row) {
