@@ -56,6 +56,8 @@
 				
 				foreach($sheet->getRowIterator() as $row_num => $row) {
 					try {
+						$this->action('before_import_row', $row, $row_num);
+
 						if($use_savepoints) {
 							$db->add_savepoint();
 						}
@@ -125,14 +127,12 @@
 						// Update model if it exists
 						if($model = $this->get_model($model_data, $identifier, $is_auto_increment)) {
 							$model->update($model_data);
-							$this->stats['updated']++;
 							$created = false;
 						}
 						
 						// Create model if it doesn't exist
 						else {
 							$model = $this->create_model($model_data, $identifier, $is_auto_increment);
-							$this->stats['created']++;
 							$created = true;
 						}
 
@@ -142,6 +142,7 @@
 						}
 
 						$this->action('after_import', $model, $model_data, $meta_data, $row, $row_num, $created);
+						$this->stats[($created ? 'created' : 'updated')]++;
 
 						if($use_savepoints) {
 							$db->release_savepoint();
