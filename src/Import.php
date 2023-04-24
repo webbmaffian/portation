@@ -124,7 +124,10 @@
 							}
 						}
 
-						// Update model if it exists
+						/** 
+						 * Update model if it exists
+						 * @var \Webbmaffian\MVC\Model\Model $model
+						 */
 						if($model = $this->get_model($model_data, $identifier, $is_auto_increment)) {
 							$model->update($model_data);
 							$created = false;
@@ -198,6 +201,8 @@
 				
 				return $this->get_columns_by_iterator($cell_iterator);
 			}
+
+			return null;
 		}
 
 

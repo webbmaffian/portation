@@ -97,7 +97,7 @@
 		}
 
 
-		public function get_mime_type($extension) {
+		public function get_mime_type(string $extension) {
 			$extension = strtolower($extension);
 			$types = array(
 				'xls' => 'application/vnd.ms-excel',

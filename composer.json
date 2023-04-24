@@ -32,8 +32,8 @@
 	],
 	"require": {
 		"php": "^7.3||^8.0",
-		"webbmaffian/orm": "*",
-		"webbmaffian/mvc": "*",
-		"phpoffice/phpspreadsheet": "*"
+		"webbmaffian/orm": "^2.0.0",
+		"webbmaffian/mvc": "^2.0.0",
+		"phpoffice/phpspreadsheet": "^1.0.0"
 	}
 }
