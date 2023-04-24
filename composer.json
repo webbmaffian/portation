@@ -20,8 +20,18 @@
 	"config": {
 		"classmap-authoritative": true
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/webbmaffian/orm"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/webbmaffian/mvc"
+		}
+	],
 	"require": {
-		"php": "^7.0.0",
+		"php": "^7.3||^8.0",
 		"webbmaffian/orm": "*",
 		"webbmaffian/mvc": "*",
 		"phpoffice/phpspreadsheet": "*"
